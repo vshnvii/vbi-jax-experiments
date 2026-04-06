@@ -1,4 +1,4 @@
-# JAX Simulation Framework (Phase 1)
+# JAX Simulation Framework 
 
 This is my initial attempt at building a simple JAX-based simulation setup for Virtual Brain Inference (VBI), mainly to understand the design discussed in Issue #67.
 
