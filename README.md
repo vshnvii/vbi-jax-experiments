@@ -6,7 +6,7 @@ This is my initial attempt at building a simple JAX-based simulation setup for V
 
 The goal here was to try out a minimal JAX implementation that follows a more functional approach (instead of heavy class-based design), so that it works well with `jax.jit` and `jax.vmap`.
 
-I started with a basic neural mass model (MPR - Montbrió-Pazó-Roxin) and built a small pipeline around it to simulate multiple nodes.
+I started with a basic neural mass model (MPR) and built a small pipeline around it to simulate multiple nodes.
 
 ## What’s included
 
