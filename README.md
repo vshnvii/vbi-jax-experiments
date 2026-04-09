@@ -25,6 +25,32 @@ I started with a basic neural mass model (MPR) and built a small pipeline around
 - **`noise.py`**  
   Noise generation using JAX PRNG keys, keeping things reproducible.
 
+  ---
+  
+  ## Enhancements (Validation & Extensions)
+
+To better align with VBI expectations and mentor suggestions, the following improvements have been added:
+
+- **BOLD Signal Integration (`bold.py`)**  
+  A functional implementation of the Balloon-Windkessel BOLD model has been added.  
+  The design keeps BOLD computation separate from neural dynamics while allowing integration into the simulation loop.
+
+- **Memory Optimization in `lax.scan`**  
+  The simulation loop has been updated to avoid storing full trajectories.  
+  Only the **last two time steps** of neural activity are retained internally, which significantly reduces memory usage during long simulations.
+
+- **NUMBA vs JAX Benchmark (`benchmark_numba_jax.py`)**  
+  A standalone script to compare JAX and NUMBA implementations under identical conditions:
+  - Deterministic setup (`I_ext = 3.0`, noise = 0)
+  - Oscillatory behavior verification using variance and FFT-based peak frequency
+  - Execution time comparison between backends
+
+- **vbjax Alignment**  
+  The BOLD implementation and parameter handling are designed to be consistent with vbjax.  
+  Outputs can be compared (intermediate variables or final BOLD signal) to validate correctness.
+
+---
+
 ## Setup
 
 Make sure JAX is installed:
@@ -75,6 +101,7 @@ trajectory = run_simulation(x0, step_keys)
 
 - Make the structure closer to how VBI expects different backends to work
 - Add validation and compare results with existing implementations
+- Unify API across different backends (JAX / NUMBA / C++)
 - Slowly extend this with more features like delays and better batching
 
 ## This is still an early version, so I’ll keep improving it based on feedback.
