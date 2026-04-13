@@ -38,8 +38,8 @@ class JaxMPRModel(JaxNeuralMass):
         super().__init__(params, dt, integrator)
         self.sigma = sigma
 
-    def rhs(self, x, t, inputs):
-        return mpr_rhs(x, t, self.params, inputs)
+    def rhs(self, x, t, params, inputs):
+        return mpr_rhs(x, t, params, inputs)
 
     def noise(self, key, shape):
         return generate_noise(key, shape, self.sigma, same_noise=False)

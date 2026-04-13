@@ -16,7 +16,7 @@ class JaxNeuralMass:
         self.dt = dt
         self.integrator = integrator
 
-    def rhs(self, x, t, inputs):
+    def rhs(self, x, t, params, inputs):
         """dx/dt = f(x, t, params, inputs)"""
         raise NotImplementedError
 
@@ -29,7 +29,7 @@ class JaxNeuralMass:
         if self.integrator is not None:
             return self.integrator(x, 0.0, self.dt, self.rhs, self.noise, self.params, inputs, key)
         else:
-            dx = self.rhs(x, 0.0, inputs)
+            dx = self.rhs(x, 0.0, self.params, inputs)
             noise = self.noise(key, x.shape)
             return x + self.dt * dx + noise
 
