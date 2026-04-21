@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vbi-jax-experiments"
+version = "0.1.0"
+description = "High-performance JAX engine benchmarks and validation for the Virtual Brain Inference package."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+    { name = "Maintainers" }
+]
+dependencies = [
+    "jax>=0.4.1",
+    "jaxlib>=0.4.1",
+    "numpy>=1.20",
+    "matplotlib",
+    "pytest",
+    "jupyter",
+    "numba>=0.56.4",
+    "vbjax",
+    "vbi @ git+https://github.com/ins-amu/vbi.git"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "sphinx",
+    "jupyterbook"
+]
+
+[tool.setuptools.packages.find]
+include = ["vbi*"]

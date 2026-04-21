@@ -190,6 +190,7 @@ def run_benchmark():
         print("PARTIAL: MSE is acceptable but dynamics differ slightly — check the plot.")
     else:
         print("FAIL: Significant divergence found between implementations.")
+        sys.exit(1) 
 
     # Oscillation Plot Check
     try:

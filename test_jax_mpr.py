@@ -10,7 +10,11 @@ def verify_simulation():
     print(f"Initializing MPR JAX model for {n_nodes} nodes.")
     
     # Setup model
-    params = MPRParams()
+    W = jax.random.uniform(jax.random.PRNGKey(42), shape=(n_nodes, n_nodes))
+    W = W - jnp.diag(jnp.diag(W)) # zero diagonal
+    W = W / jnp.max(W) # Normalize
+
+    params = MPRParams(weights=W)
     model = JaxMPRModel(params=params, sigma=0.01, dt=0.1)
     
     # Initial state (r, V). Note: MPR State -> (r, V)
@@ -22,10 +26,7 @@ def verify_simulation():
     x0 = x0.at[:, 0].set(0.0)
     x0 = x0.at[:, 1].set(-2.0)
     
-    # Set up coupling randomly for nodes
-    W = jax.random.uniform(subkey, shape=(n_nodes, n_nodes))
-    W = W - jnp.diag(jnp.diag(W)) # zero diagonal
-    W = W / jnp.max(W) # Normalize
+    # Set up coupling randomly for nodes (already generated above for parameters)
     
     def coupling_fn(x):
         return diffusive_coupling(x, W)
