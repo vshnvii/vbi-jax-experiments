@@ -25,6 +25,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -e .[dev]
+        pip install "vbi[jax] @ git+https://github.com/vshnvii/vbi.git"
 
     - name: Run JAX core tests
       run: |

@@ -21,7 +21,7 @@ dependencies = [
     "jupyter",
     "numba>=0.56.4",
     "vbjax",
-    "vbi @ git+https://github.com/ins-amu/vbi.git"
+    "vbi @ git+https://github.com/vshnvii/vbi.git"
 ]
 
 [project.optional-dependencies]
