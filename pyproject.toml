@@ -7,7 +7,7 @@ name = "vbi-jax-experiments"
 version = "0.1.0"
 description = "High-performance JAX engine benchmarks and validation for the Virtual Brain Inference package."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
     { name = "Maintainers" }
@@ -28,7 +28,7 @@ dependencies = [
 dev = [
     "pytest",
     "sphinx",
-    "jupyterbook"
+    "jupyter-book"
 ]
 
 [tool.setuptools.packages.find]
