@@ -10,8 +10,7 @@ import jax
 import jax.numpy as jnp
 
 from vbi.models.numba.mpr import MPR_sde
-from vbi.models.jax.mpr import JaxMPRModel, MPRParams
-from vbi.models.jax.coupling import diffusive_coupling
+from jax_experiments.mpr import JaxMPRModel, MPRParams
 
 def compute_peak_frequency(signal, dt):
     """
