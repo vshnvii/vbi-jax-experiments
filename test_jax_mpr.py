@@ -9,23 +9,25 @@ def verify_simulation():
     n_nodes = 30
     print(f"Initializing MPR JAX model for {n_nodes} nodes.")
     
-    # Setup model
-    params = MPRParams()
-    model = JaxMPRModel(params=params, sigma=0.01, dt=0.1)
-    
-    # Initial state (r, V). Note: MPR State -> (r, V)
-    # r = 0.0, V = -2.0 is default from vbjax
+    # Random key
     key = jax.random.PRNGKey(42)
     key, subkey = jax.random.split(key)
+
+    # Set up coupling randomly for nodes
+    W = jax.random.uniform(subkey, shape=(n_nodes, n_nodes))
+    W = W - jnp.diag(jnp.diag(W))  # zero diagonal
+    W = W / jnp.max(W)  # Normalize
+
+    # Setup model
+    params = MPRParams(
+        weights=W
+    )
+    model = JaxMPRModel(params=params, sigma=0.01, dt=0.1)
     
+    # Initial state (r, V)
     x0 = jnp.zeros((n_nodes, 2))
     x0 = x0.at[:, 0].set(0.0)
     x0 = x0.at[:, 1].set(-2.0)
-    
-    # Set up coupling randomly for nodes
-    W = jax.random.uniform(subkey, shape=(n_nodes, n_nodes))
-    W = W - jnp.diag(jnp.diag(W)) # zero diagonal
-    W = W / jnp.max(W) # Normalize
     
     def coupling_fn(x):
         return diffusive_coupling(x, W)
@@ -36,7 +38,7 @@ def verify_simulation():
     
     print("Compiling and Running Simulation using lax.scan ...")
     start = time.time()
-    # To properly JIT the entire simulation 
+
     @jax.jit
     def run_sim(x0, keys):
         return model.run(x0, keys, coupling_fn)
@@ -45,7 +47,7 @@ def verify_simulation():
     end = time.time()
     
     print(f"Simulation completed in {end - start:.4f} seconds.")
-    print(f"Trajectory shape: {traj.shape}")  # should be (n_steps, n_nodes, 2)
+    print(f"Trajectory shape: {traj.shape}")
     print("Simulation execution successful!")
 
 if __name__ == "__main__":
