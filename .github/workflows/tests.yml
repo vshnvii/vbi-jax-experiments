@@ -26,6 +26,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .[dev]
         pip install jax jaxlib vbjax
+        pip install vbi[all]
 
     - name: Run JAX core tests
       run: |
