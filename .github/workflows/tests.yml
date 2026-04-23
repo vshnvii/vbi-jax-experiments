@@ -31,6 +31,7 @@ jobs:
         pip install -e .[dev]
         pip install jax jaxlib vbjax
         pip install --no-deps vbi[all]
+        pip install rich
 
     - name: Run JAX core tests
       env :
