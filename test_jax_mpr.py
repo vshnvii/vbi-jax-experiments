@@ -1,3 +1,4 @@
+import vbi.models.jax # noqa
 import time
 import jax
 import jax.numpy as jnp
