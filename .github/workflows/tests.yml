@@ -30,6 +30,7 @@ jobs:
         pip install -U "jax[cpu]"
         pip install -e .[dev]
         pip install jax jaxlib vbjax
+        pip install --no-deps vbi[all]
 
     - name: Run JAX core tests
       env :
