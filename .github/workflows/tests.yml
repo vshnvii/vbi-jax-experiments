@@ -31,7 +31,7 @@ jobs:
         pip install -e .[dev]
         pip install jax jaxlib vbjax
         pip install --no-deps vbi[all]
-        pip install rich tqdm scipy pandas
+        pip install autograd corner h5py nbconvert networkx pandas parameterized rich scikit-learn scipy setuptools-scm swig tqdm
 
     - name: Run JAX core tests
       env :
