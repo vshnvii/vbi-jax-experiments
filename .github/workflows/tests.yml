@@ -34,6 +34,8 @@ jobs:
         # 3. Install VBI with ONLY its JAX tools (bypassing the CuPy crash)
         pip install vbi[jax]
 
+        pip install "vbi[jax] @ git+https://github.com/ins-amu/vbi.git"
+
     - name: Run JAX core tests
       run: |
         # Run test_jax_mpr logic to ensure internal engine works

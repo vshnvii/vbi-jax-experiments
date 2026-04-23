@@ -1,7 +1,7 @@
 import time
 import jax
 import jax.numpy as jnp
-from vbi.models.jax.mpr import JaxMPRModel, MPRParams
+from jax_experiments.mpr import JaxMPRModel, MPRParams
 from vbi.models.jax.coupling import diffusive_coupling
 
 def verify_simulation():
