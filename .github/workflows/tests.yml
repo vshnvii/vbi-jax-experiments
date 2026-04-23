@@ -32,8 +32,9 @@ jobs:
         pip install jax jaxlib vbjax
 
     - name: Run JAX core tests
+      env :
+        PYTHONPATH: 
       run: |
-        # Run test_jax_mpr logic to ensure internal engine works
         python test_jax_mpr.py
 
     - name: Run numerical benchmark validation
