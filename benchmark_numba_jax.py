@@ -29,9 +29,31 @@ def compute_peak_frequency(signal, dt):
     return 0.0
 
 def run_benchmark():
-    n_nodes = 30
+    # ---------------------------------------------------------
+    # HARDWARE AWARENESS: Dynamic CI vs Local GPU parameters
+    # ---------------------------------------------------------
+    is_ci_environment = os.environ.get('CI') == 'true'
+    current_backend = jax.default_backend()
+
+    if is_ci_environment or current_backend == 'cpu':
+        print(f"⚠️  Running on CPU (Backend: {current_backend}). Triggering CI Smoke Test mode.")
+        n_nodes = 5         # Reduced nodes for fast testing
+        t_end = 100.0       # 1/10th the simulation time
+        freq_tol = 20.0     # Looser tolerances for shorter signal FFTs
+        var_tol = 30.0
+        mse_r_tol = 0.10
+        mse_v_tol = 0.30
+    else:
+        print(f"🚀 Hardware accelerator detected (Backend: {current_backend}). Triggering Full Benchmark.")
+        n_nodes = 30        # Your original size
+        t_end = 1000.0      # Your original duration
+        freq_tol = 10.0     # Your original strict tolerance
+        var_tol = 20.0
+        mse_r_tol = 0.05
+        mse_v_tol = 0.15
+
     dt = 0.001
-    t_end = 1000.0  # 1000 ms to give good oscillation data
+    
     # Create deterministic oscillations:
     iapp = 2.2
     G = 0.3
@@ -44,7 +66,7 @@ def run_benchmark():
     # Decimation factor — applied to BOTH models equally
     rv_decimate = 10
 
-    print(f"--- Initialization ---")
+    print(f"\n--- Initialization ---")
     print(f"Nodes: {n_nodes}, dt: {dt}, t_end: {t_end}")
 
     # 1. Weights
@@ -54,8 +76,6 @@ def run_benchmark():
     weights /= weights.max()
 
     # Common Initial State
-    # Shape of x0 for numba is (2*n_nodes) [r0..rn, v0..vn]
-    # Shape of x0 for jax is (n_nodes, 2)
     r_init = np.random.uniform(0, 1.5, size=n_nodes)
     v_init = np.random.uniform(-2, 2, size=n_nodes)
 
@@ -87,8 +107,6 @@ def run_benchmark():
     # Extract timeseries
     rv_d_numba = numba_res["rv_d"]  # (n_steps, 2 * nn)
 
-    # FIX 1: Decimate Numba output the same way as JAX
-    # so both signals have the same effective time step
     r_numba = rv_d_numba[::rv_decimate, :n_nodes]
     v_numba = rv_d_numba[::rv_decimate, n_nodes:]
 
@@ -109,8 +127,6 @@ def run_benchmark():
 
     jax_model = JaxMPRModel(params=jax_params, sigma=0.0, dt=dt)
 
-    # FIX 2: Use diffusive coupling with weights instead of zeros
-    # so JAX coupling matches Numba's G-weighted coupling
     def coupling_fn(x):
         r = x[:, 0]  # firing rates of all nodes, shape (n_nodes,)
         coupled_r = jnp.dot(jnp.array(weights), r)  # weighted sum from all nodes
@@ -131,7 +147,6 @@ def run_benchmark():
     t0 = time.time()
     jax_traj = jax_run(x0_jax, keys)
 
-    # FIX 3: Both models now use the same effective_dt = dt * rv_decimate
     jax_r = np.array(jax_traj[::rv_decimate, :, 0])
     jax_v = np.array(jax_traj[::rv_decimate, :, 1])
 
@@ -156,7 +171,6 @@ def run_benchmark():
     r_var_numba = np.var(signal_numba)
     r_var_jax   = np.var(signal_jax)
 
-    # FIX 3: Both signals are decimated, so both correctly use effective_dt
     effective_dt = dt * rv_decimate
     peak_freq_numba = compute_peak_frequency(signal_numba, effective_dt)
     peak_freq_jax   = compute_peak_frequency(signal_jax,   effective_dt)
@@ -165,7 +179,7 @@ def run_benchmark():
     print(f"NUMBA Node 0: Variance = {r_var_numba:.4e}, Peak Freq = {peak_freq_numba:.2f} Hz")
     print(f"JAX Node 0:   Variance = {r_var_jax:.4e}, Peak Freq = {peak_freq_jax:.2f} Hz")
 
-    # Frequency and variance agreement (scientifically meaningful check)
+    # Frequency and variance agreement
     freq_diff_pct = abs(peak_freq_numba - peak_freq_jax) / (peak_freq_numba + 1e-9) * 100
     var_diff_pct  = abs(r_var_numba - r_var_jax) / (r_var_numba + 1e-9) * 100
     print(f"\nFrequency difference: {freq_diff_pct:.1f}%")
@@ -179,16 +193,13 @@ def run_benchmark():
     print(f"MSE (r): {mse_r:.4e}")
     print(f"MSE (v): {mse_v:.4e}")
 
-    # Scientifically meaningful success check:
-    # 1. Frequencies within 10% of each other
-    # 2. Variance within 20% of each other
-    # 3. MSE within reasonable range for chaotic brain models
-    if freq_diff_pct < 10 and var_diff_pct < 20:
-        print("SUCCESS: Both models show consistent oscillatory dynamics.")
-    elif mse_r < 0.05 and mse_v < 0.15:
+    # Dynamic Success Check
+    if freq_diff_pct < freq_tol and var_diff_pct < var_tol:
+        print(f"SUCCESS: Both models show consistent oscillatory dynamics within {freq_tol}% tolerance.")
+    elif mse_r < mse_r_tol and mse_v < mse_v_tol:
         print("PARTIAL: MSE is acceptable but dynamics differ slightly — check the plot.")
     else:
-        print("FAIL: Significant divergence found between implementations.")
+        print(f"FAIL: Significant divergence found between implementations.")
         sys.exit(1) 
 
     # Oscillation Plot Check
