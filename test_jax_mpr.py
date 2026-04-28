@@ -2,7 +2,7 @@ import time
 import jax
 import jax.numpy as jnp
 from jax_experiments.mpr import JaxMPRModel, MPRParams
-from vbi.models.jax.coupling import diffusive_coupling
+from jax_experiments.coupling import diffusive_coupling
 
 def verify_simulation():
     # 10 to 50 nodes
